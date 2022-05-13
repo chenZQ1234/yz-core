@@ -3,6 +3,8 @@ nacos sdk 支持版本为Python 2.7 Python 3.6 Python 3.7
 """
 import nacos
 import logging
+from typing import List,Dict
+from requests.exceptions import HTTPError
 
 class BaseNacosClient:
     def __init__(self,nacos_url:str,username:str,password:str,service_name:str,nacos_ip:str=None,nacos_port:int=None,namespace:str=None,**kwargs):
@@ -51,3 +53,23 @@ class BaseNacosClient:
             )
         except Exception as ex:
             logging.error("Failed to register to nacos : %s", ex)
+
+    async def list_services(self,server_list: List,callback_return)->Dict:
+        """获取服务列表"""
+        res=dict()
+        for service in server_list:
+            res.update({service:{"ip":[],"port":""}})
+            try:
+                resp=self.client.list_naming_instance(service,namespace_id="public",healthy_only=True)
+                # print(resp)
+            except HTTPError:
+                continue
+
+            for host in resp.get('hosts'):
+                res[service]["ip"].append(host.get('ip'))
+                res[service]['port']=host.get('port')
+                
+        if callback_return:
+            callback_return(res)
+
+    

@@ -37,6 +37,7 @@ setuptools.setup(
         "fastapi>=0.68.1",
         "uvicorn>0.13",
         "yzrpc>=0.1",
+        "nacos-sdk-python==0.1.6"
     ],
     entry_points={
         'console_scripts': [
